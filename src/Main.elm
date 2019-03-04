@@ -295,7 +295,9 @@ lastMoveMessage selection =
             ""
 
         Selected player matchsticks ->
-            possessive player ++ " selection was: " ++ String.fromInt matchsticks
+            possessive player
+                ++ " selection was: "
+                ++ String.fromInt matchsticks
 
 
 possessive : Player -> String
