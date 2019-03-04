@@ -5011,19 +5011,6 @@ var author$project$Main$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
 var author$project$Main$DoNothing = {$: 'DoNothing'};
-var author$project$Main$gameOver = function (matchsticks) {
-	return (matchsticks > 0) ? false : true;
-};
-var elm$core$Basics$ge = _Utils_ge;
-var author$project$Main$takeMatchsticks = F2(
-	function (matchsticks, toTake) {
-		return (_Utils_cmp(matchsticks, toTake) > -1) ? (matchsticks - toTake) : 0;
-	});
-var author$project$Main$computerPlaysNextOrEndOfGame = F2(
-	function (matchsticks, selectedMatchsticks) {
-		return author$project$Main$gameOver(matchsticks - selectedMatchsticks) ? author$project$Main$DoNothing : author$project$Main$computerTakesNextTurn(
-			A2(author$project$Main$takeMatchsticks, matchsticks, selectedMatchsticks));
-	});
 var author$project$Main$rejectPlayerTurn = function (model) {
 	return _Utils_Tuple2(model, author$project$Main$DoNothing);
 };
@@ -5031,6 +5018,9 @@ var author$project$Main$Selected = F2(
 	function (a, b) {
 		return {$: 'Selected', a: a, b: b};
 	});
+var author$project$Main$gameOver = function (matchsticks) {
+	return (matchsticks > 0) ? false : true;
+};
 var author$project$Main$HumanPlayer = {$: 'HumanPlayer'};
 var author$project$Main$nextPlayer = function (currentPlayer) {
 	if (currentPlayer.$ === 'ComputerPlayer') {
@@ -5039,6 +5029,11 @@ var author$project$Main$nextPlayer = function (currentPlayer) {
 		return author$project$Main$ComputerPlayer;
 	}
 };
+var elm$core$Basics$ge = _Utils_ge;
+var author$project$Main$takeMatchsticks = F2(
+	function (matchsticks, toTake) {
+		return (_Utils_cmp(matchsticks, toTake) > -1) ? (matchsticks - toTake) : 0;
+	});
 var author$project$Main$updateSelection = F2(
 	function (model, selectedMatchsticks) {
 		return author$project$Main$gameOver(model.matchsticks) ? model : _Utils_update(
@@ -5055,29 +5050,42 @@ var author$project$Main$tryToPlayTurn = F3(
 			A2(author$project$Main$updateSelection, model, selectedMatchsticks),
 			msg);
 	});
+var author$project$Main$computerPlayerTakesTurn = F2(
+	function (model, selectedMatchsticks) {
+		var _n0 = model.currentPlayer;
+		if (_n0.$ === 'ComputerPlayer') {
+			return A3(author$project$Main$tryToPlayTurn, model, selectedMatchsticks, author$project$Main$DoNothing);
+		} else {
+			return author$project$Main$rejectPlayerTurn(model);
+		}
+	});
+var author$project$Main$computerPlaysNextOrEndOfGame = F2(
+	function (matchsticks, selectedMatchsticks) {
+		return author$project$Main$gameOver(matchsticks - selectedMatchsticks) ? author$project$Main$DoNothing : author$project$Main$computerTakesNextTurn(
+			A2(author$project$Main$takeMatchsticks, matchsticks, selectedMatchsticks));
+	});
+var author$project$Main$humanPlayerTakesTurn = F2(
+	function (model, selectedMatchsticks) {
+		var _n0 = model.currentPlayer;
+		if (_n0.$ === 'HumanPlayer') {
+			return A3(
+				author$project$Main$tryToPlayTurn,
+				model,
+				selectedMatchsticks,
+				A2(author$project$Main$computerPlaysNextOrEndOfGame, model.matchsticks, selectedMatchsticks));
+		} else {
+			return author$project$Main$rejectPlayerTurn(model);
+		}
+	});
 var author$project$Main$updateWithoutCmd = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'Take':
 				var selectedMatchsticks = msg.a;
-				var _n1 = model.currentPlayer;
-				if (_n1.$ === 'HumanPlayer') {
-					return A3(
-						author$project$Main$tryToPlayTurn,
-						model,
-						selectedMatchsticks,
-						A2(author$project$Main$computerPlaysNextOrEndOfGame, model.matchsticks, selectedMatchsticks));
-				} else {
-					return author$project$Main$rejectPlayerTurn(model);
-				}
+				return A2(author$project$Main$humanPlayerTakesTurn, model, selectedMatchsticks);
 			case 'ComputerTake':
 				var selectedMatchsticks = msg.a;
-				var _n2 = model.currentPlayer;
-				if (_n2.$ === 'ComputerPlayer') {
-					return A3(author$project$Main$tryToPlayTurn, model, selectedMatchsticks, author$project$Main$DoNothing);
-				} else {
-					return author$project$Main$rejectPlayerTurn(model);
-				}
+				return A2(author$project$Main$computerPlayerTakesTurn, model, selectedMatchsticks);
 			default:
 				return _Utils_Tuple2(model, author$project$Main$DoNothing);
 		}

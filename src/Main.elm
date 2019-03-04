@@ -130,29 +130,39 @@ updateWithoutCmd : Msg -> Model -> ( Model, Msg )
 updateWithoutCmd msg model =
     case msg of
         Take selectedMatchsticks ->
-            case model.currentPlayer of
-                HumanPlayer ->
-                    tryToPlayTurn
-                        model
-                        selectedMatchsticks
-                        (computerPlaysNextOrEndOfGame
-                            model.matchsticks
-                            selectedMatchsticks
-                        )
-
-                ComputerPlayer ->
-                    rejectPlayerTurn model
+            humanPlayerTakesTurn model selectedMatchsticks
 
         ComputerTake selectedMatchsticks ->
-            case model.currentPlayer of
-                ComputerPlayer ->
-                    tryToPlayTurn model selectedMatchsticks DoNothing
-
-                HumanPlayer ->
-                    rejectPlayerTurn model
+            computerPlayerTakesTurn model selectedMatchsticks
 
         DoNothing ->
             ( model, DoNothing )
+
+
+humanPlayerTakesTurn : Model -> Int -> ( Model, Msg )
+humanPlayerTakesTurn model selectedMatchsticks =
+    case model.currentPlayer of
+        HumanPlayer ->
+            tryToPlayTurn
+                model
+                selectedMatchsticks
+                (computerPlaysNextOrEndOfGame
+                    model.matchsticks
+                    selectedMatchsticks
+                )
+
+        ComputerPlayer ->
+            rejectPlayerTurn model
+
+
+computerPlayerTakesTurn : Model -> Int -> ( Model, Msg )
+computerPlayerTakesTurn model selectedMatchsticks =
+    case model.currentPlayer of
+        ComputerPlayer ->
+            tryToPlayTurn model selectedMatchsticks DoNothing
+
+        HumanPlayer ->
+            rejectPlayerTurn model
 
 
 wrapNextMsgWithCmd : ( Model, Msg ) -> ( Model, Cmd Msg )
