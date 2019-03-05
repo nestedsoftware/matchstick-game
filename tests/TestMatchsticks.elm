@@ -166,4 +166,24 @@ suite =
                 Expect.equal
                     ( expectedModel, DoNothing )
                     ( actualModel, actualMsg )
+        , fuzz (Fuzz.intRange 1 3)
+            "game ends properly when computer takes last matchstick"
+          <|
+            \matchsticks ->
+                let
+                    startingModel =
+                        Model ComputerPlayer matchsticks NoneSelected
+
+                    ( actualModel, actualMsg ) =
+                        updateWithoutCmd (ComputerTake matchsticks) startingModel
+
+                    expectedModel =
+                        Model
+                            HumanPlayer
+                            0
+                            (Selected ComputerPlayer matchsticks)
+                in
+                Expect.equal
+                    ( expectedModel, DoNothing )
+                    ( actualModel, actualMsg )
         ]
