@@ -126,6 +126,28 @@ update msg model =
     wrapNextMsgWithCmd <| updateWithoutCmd msg model
 
 
+wrapNextMsgWithCmd : ( Model, Msg ) -> ( Model, Cmd Msg )
+wrapNextMsgWithCmd ( nextModel, nextMsg ) =
+    ( nextModel, wrapWithCmd nextMsg )
+
+
+wrapWithCmd : Msg -> Cmd Msg
+wrapWithCmd nextMsg =
+    case nextMsg of
+        DoNothing ->
+            Cmd.none
+
+        Take _ ->
+            Cmd.none
+
+        ComputerTake _ ->
+            Cmd.batch
+                [ Task.perform
+                    (\_ -> nextMsg)
+                    (Process.sleep 3000)
+                ]
+
+
 updateWithoutCmd : Msg -> Model -> ( Model, Msg )
 updateWithoutCmd msg model =
     case msg of
@@ -163,28 +185,6 @@ computerPlayerTakesTurn model selectedMatchsticks =
 
         HumanPlayer ->
             rejectPlayerTurn model
-
-
-wrapNextMsgWithCmd : ( Model, Msg ) -> ( Model, Cmd Msg )
-wrapNextMsgWithCmd ( nextModel, nextMsg ) =
-    ( nextModel, wrapWithCmd nextMsg )
-
-
-wrapWithCmd : Msg -> Cmd Msg
-wrapWithCmd nextMsg =
-    case nextMsg of
-        DoNothing ->
-            Cmd.none
-
-        Take _ ->
-            Cmd.none
-
-        ComputerTake _ ->
-            Cmd.batch
-                [ Task.perform
-                    (\_ -> nextMsg)
-                    (Process.sleep 3000)
-                ]
 
 
 tryToPlayTurn : Model -> Int -> Msg -> ( Model, Msg )
@@ -266,7 +266,7 @@ view model =
     div []
         [ h1
             []
-            [ text <| playerTurnMessage model.matchsticks model.currentPlayer ]
+            [ playerTurnLabel model ]
         , h1 [] [ text (String.fromInt model.matchsticks) ]
         , button [ onClick (Take 1), disabled (disable model) ]
             [ text "take 1" ]
@@ -274,75 +274,38 @@ view model =
             [ text "take 2" ]
         , button [ onClick (Take 3), disabled (disable model) ]
             [ text "take 3" ]
-        , displayLastMoveMessageAndThinkingStatus model
+        , p [] [ text <| lastMoveString model.lastSelection ]
         ]
 
 
-displayLastMoveMessageAndThinkingStatus : Model -> Html Msg
-displayLastMoveMessageAndThinkingStatus model =
-    let
-        lastMove =
-            lastMoveMessage model.lastSelection
+playerTurnLabel : Model -> Html Msg
+playerTurnLabel model =
+    if model.currentPlayer == HumanPlayer || gameOver model.matchsticks then
+        text <| playerTurnString model.matchsticks model.currentPlayer
 
-        moveMessage =
-            span [ style "font-size" "1.5em" ]
-                [ text <| lastMove ]
-
-        thinkingMessage =
-            let
-                visibility =
-                    if
-                        model.currentPlayer
-                            == ComputerPlayer
-                            && not (gameOver model.matchsticks)
-                    then
-                        "visible"
-
-                    else
-                        "hidden"
-            in
-            displayComputerThinkingMessage
-                model.currentPlayer
-                lastMove
-                visibility
-    in
-    div []
-        [ moveMessage
-        , thinkingMessage
-        ]
+    else
+        computerIsThinkingLabel model
 
 
-displayComputerThinkingMessage : Player -> String -> String -> Html Msg
-displayComputerThinkingMessage currentPlayer lastMove visibility =
-    let
-        commaIfNeeded =
-            if lastMove == "" then
-                ""
-
-            else
-                ", "
-    in
-    span [ style "visibility" visibility, style "font-size" "1.5em" ]
-        [ p [] []
-        , span [ class "saving" ]
-            [ text <|
-                commaIfNeeded
-                    ++ playerLabel currentPlayer
-                    ++ " is thinking"
-            , span [] [ text "." ]
-            , span [] [ text "." ]
-            , span [] [ text "." ]
-            ]
-        ]
-
-
-playerTurnMessage : Int -> Player -> String
-playerTurnMessage matchsticks player =
+playerTurnString : Int -> Player -> String
+playerTurnString matchsticks player =
     if matchsticks == 0 then
         "Game over, " ++ playerLabel player ++ " won!"
 
     else
         "It is " ++ possessive player ++ " turn"
+
+
+computerIsThinkingLabel : Model -> Html Msg
+computerIsThinkingLabel model =
+    span [ class "saving" ]
+        [ text <|
+            capitalizeFirst (playerLabel model.currentPlayer)
+                ++ " is thinking"
+        , span [] [ text "." ]
+        , span [] [ text "." ]
+        , span [] [ text "." ]
+        ]
 
 
 playerLabel : Player -> String
@@ -353,28 +316,6 @@ playerLabel currentPlayer =
 
         HumanPlayer ->
             "you"
-
-
-lastMoveMessage : Selection -> String
-lastMoveMessage selection =
-    case selection of
-        NoneSelected ->
-            ""
-
-        Selected player matchsticks ->
-            possessive player
-                ++ " selection was: "
-                ++ String.fromInt matchsticks
-
-
-possessive : Player -> String
-possessive player =
-    case player of
-        ComputerPlayer ->
-            "computer's"
-
-        HumanPlayer ->
-            "your"
 
 
 disable : Model -> Bool
@@ -389,3 +330,35 @@ disable model =
 
             else
                 False
+
+
+lastMoveString : Selection -> String
+lastMoveString selection =
+    case selection of
+        NoneSelected ->
+            ""
+
+        Selected player matchsticks ->
+            capitalizeFirst (possessive player)
+                ++ " selection was: "
+                ++ String.fromInt matchsticks
+
+
+capitalizeFirst : String -> String
+capitalizeFirst str =
+    case String.uncons str of
+        Just ( x, xs ) ->
+            String.cons (Char.toUpper x) xs
+
+        Nothing ->
+            str
+
+
+possessive : Player -> String
+possessive player =
+    case player of
+        ComputerPlayer ->
+            "computer's"
+
+        HumanPlayer ->
+            "your"
