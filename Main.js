@@ -5106,6 +5106,90 @@ var author$project$Main$disable = function (model) {
 		return author$project$Main$gameOver(model.matchsticks) ? true : false;
 	}
 };
+var author$project$Main$playerLabel = function (currentPlayer) {
+	if (currentPlayer.$ === 'ComputerPlayer') {
+		return 'computer';
+	} else {
+		return 'you';
+	}
+};
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$map2 = _Json_map2;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
+	switch (handler.$) {
+		case 'Normal':
+			return 0;
+		case 'MayStopPropagation':
+			return 1;
+		case 'MayPreventDefault':
+			return 2;
+		default:
+			return 3;
+	}
+};
+var elm$html$Html$p = _VirtualDom_node('p');
+var elm$html$Html$span = _VirtualDom_node('span');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var author$project$Main$displayComputerThinkingMessage = F3(
+	function (currentPlayer, lastMove, visibility) {
+		var commaIfNeeded = (lastMove === '') ? '' : ', ';
+		return A2(
+			elm$html$Html$span,
+			_List_fromArray(
+				[
+					A2(elm$html$Html$Attributes$style, 'visibility', visibility),
+					A2(elm$html$Html$Attributes$style, 'font-size', '1.5em')
+				]),
+			_List_fromArray(
+				[
+					A2(elm$html$Html$p, _List_Nil, _List_Nil),
+					A2(
+					elm$html$Html$span,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('saving')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(
+							commaIfNeeded + (author$project$Main$playerLabel(currentPlayer) + ' is thinking')),
+							A2(
+							elm$html$Html$span,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('.')
+								])),
+							A2(
+							elm$html$Html$span,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('.')
+								])),
+							A2(
+							elm$html$Html$span,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('.')
+								]))
+						]))
+				]));
+	});
 var author$project$Main$possessive = function (player) {
 	if (player.$ === 'ComputerPlayer') {
 		return 'computer\'s';
@@ -5122,38 +5206,36 @@ var author$project$Main$lastMoveMessage = function (selection) {
 		return author$project$Main$possessive(player) + (' selection was: ' + elm$core$String$fromInt(matchsticks));
 	}
 };
-var author$project$Main$playerLabel = function (currentPlayer) {
-	if (currentPlayer.$ === 'ComputerPlayer') {
-		return 'computer';
-	} else {
-		return 'you';
-	}
+var elm$core$Basics$not = _Basics_not;
+var elm$html$Html$div = _VirtualDom_node('div');
+var author$project$Main$displayLastMoveMessageAndThinkingStatus = function (model) {
+	var lastMove = author$project$Main$lastMoveMessage(model.lastSelection);
+	var moveMessage = A2(
+		elm$html$Html$span,
+		_List_fromArray(
+			[
+				A2(elm$html$Html$Attributes$style, 'font-size', '1.5em')
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text(lastMove)
+			]));
+	var thinkingMessage = function () {
+		var visibility = (_Utils_eq(model.currentPlayer, author$project$Main$ComputerPlayer) && (!author$project$Main$gameOver(model.matchsticks))) ? 'visible' : 'hidden';
+		return A3(author$project$Main$displayComputerThinkingMessage, model.currentPlayer, lastMove, visibility);
+	}();
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[moveMessage, thinkingMessage]));
 };
 var author$project$Main$playerTurnMessage = F2(
 	function (matchsticks, player) {
 		return (!matchsticks) ? ('Game over, ' + (author$project$Main$playerLabel(player) + ' won!')) : ('It is ' + (author$project$Main$possessive(player) + ' turn'));
 	});
-var elm$json$Json$Decode$map = _Json_map1;
-var elm$json$Json$Decode$map2 = _Json_map2;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
-	switch (handler.$) {
-		case 'Normal':
-			return 0;
-		case 'MayStopPropagation':
-			return 1;
-		case 'MayPreventDefault':
-			return 2;
-		default:
-			return 3;
-	}
-};
 var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
-var elm$html$Html$p = _VirtualDom_node('p');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$json$Json$Encode$bool = _Json_wrap;
 var elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
@@ -5241,9 +5323,7 @@ var author$project$Main$view = function (model) {
 					[
 						elm$html$Html$text('take 3')
 					])),
-				A2(elm$html$Html$p, _List_Nil, _List_Nil),
-				elm$html$Html$text(
-				author$project$Main$lastMoveMessage(model.lastSelection))
+				author$project$Main$displayLastMoveMessageAndThinkingStatus(model)
 			]));
 };
 var elm$browser$Browser$External = function (a) {

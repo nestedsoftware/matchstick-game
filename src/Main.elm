@@ -15,7 +15,7 @@ module Main exposing
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (disabled)
+import Html.Attributes exposing (class, disabled, style)
 import Html.Events exposing (..)
 import Process
 import Task
@@ -274,8 +274,55 @@ view model =
             [ text "take 2" ]
         , button [ onClick (Take 3), disabled (disable model) ]
             [ text "take 3" ]
-        , p [] []
-        , text <| lastMoveMessage model.lastSelection
+        , displayLastMoveMessageAndThinkingStatus model
+        ]
+
+
+displayLastMoveMessageAndThinkingStatus : Model -> Html Msg
+displayLastMoveMessageAndThinkingStatus model =
+    let
+        lastMove =
+            lastMoveMessage model.lastSelection
+
+        moveMessage =
+            span [ style "font-size" "1.5em" ]
+                [ text <| lastMove ]
+
+        thinkingMessage =
+            let
+                visibility =
+                    if model.currentPlayer == ComputerPlayer && not (gameOver model.matchsticks) then
+                        "visible"
+
+                    else
+                        "hidden"
+            in
+            displayComputerThinkingMessage model.currentPlayer lastMove visibility
+    in
+    div []
+        [ moveMessage
+        , thinkingMessage
+        ]
+
+
+displayComputerThinkingMessage : Player -> String -> String -> Html Msg
+displayComputerThinkingMessage currentPlayer lastMove visibility =
+    let
+        commaIfNeeded =
+            if lastMove == "" then
+                ""
+
+            else
+                ", "
+    in
+    span [ style "visibility" visibility, style "font-size" "1.5em" ]
+        [ p [] []
+        , span [ class "saving" ]
+            [ text <| commaIfNeeded ++ playerLabel currentPlayer ++ " is thinking"
+            , span [] [ text "." ]
+            , span [] [ text "." ]
+            , span [] [ text "." ]
+            ]
         ]
 
 
