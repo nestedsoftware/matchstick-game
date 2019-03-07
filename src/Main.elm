@@ -291,13 +291,20 @@ displayLastMoveMessageAndThinkingStatus model =
         thinkingMessage =
             let
                 visibility =
-                    if model.currentPlayer == ComputerPlayer && not (gameOver model.matchsticks) then
+                    if
+                        model.currentPlayer
+                            == ComputerPlayer
+                            && not (gameOver model.matchsticks)
+                    then
                         "visible"
 
                     else
                         "hidden"
             in
-            displayComputerThinkingMessage model.currentPlayer lastMove visibility
+            displayComputerThinkingMessage
+                model.currentPlayer
+                lastMove
+                visibility
     in
     div []
         [ moveMessage
@@ -318,7 +325,10 @@ displayComputerThinkingMessage currentPlayer lastMove visibility =
     span [ style "visibility" visibility, style "font-size" "1.5em" ]
         [ p [] []
         , span [ class "saving" ]
-            [ text <| commaIfNeeded ++ playerLabel currentPlayer ++ " is thinking"
+            [ text <|
+                commaIfNeeded
+                    ++ playerLabel currentPlayer
+                    ++ " is thinking"
             , span [] [ text "." ]
             , span [] [ text "." ]
             , span [] [ text "." ]
