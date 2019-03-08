@@ -358,7 +358,7 @@ possessive : Player -> String
 possessive player =
     case player of
         ComputerPlayer ->
-            "computer's"
+            playerLabel player ++ "'s"
 
         HumanPlayer ->
-            "your"
+            playerLabel player ++ "r"

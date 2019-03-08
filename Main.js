@@ -5122,11 +5122,18 @@ var author$project$Main$capitalizeFirst = function (str) {
 		return str;
 	}
 };
+var author$project$Main$playerLabel = function (currentPlayer) {
+	if (currentPlayer.$ === 'ComputerPlayer') {
+		return 'computer';
+	} else {
+		return 'you';
+	}
+};
 var author$project$Main$possessive = function (player) {
 	if (player.$ === 'ComputerPlayer') {
-		return 'computer\'s';
+		return author$project$Main$playerLabel(player) + '\'s';
 	} else {
-		return 'your';
+		return author$project$Main$playerLabel(player) + 'r';
 	}
 };
 var author$project$Main$lastMoveString = function (selection) {
@@ -5137,13 +5144,6 @@ var author$project$Main$lastMoveString = function (selection) {
 		var matchsticks = selection.b;
 		return author$project$Main$capitalizeFirst(
 			author$project$Main$possessive(player)) + (' selection was: ' + elm$core$String$fromInt(matchsticks));
-	}
-};
-var author$project$Main$playerLabel = function (currentPlayer) {
-	if (currentPlayer.$ === 'ComputerPlayer') {
-		return 'computer';
-	} else {
-		return 'you';
 	}
 };
 var elm$json$Json$Decode$map = _Json_map1;
