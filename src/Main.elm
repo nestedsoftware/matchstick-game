@@ -318,6 +318,16 @@ playerLabel currentPlayer =
             "you"
 
 
+possessive : Player -> String
+possessive player =
+    case player of
+        ComputerPlayer ->
+            playerLabel player ++ "'s"
+
+        HumanPlayer ->
+            playerLabel player ++ "r"
+
+
 disable : Model -> Bool
 disable model =
     case model.currentPlayer of
@@ -352,13 +362,3 @@ capitalizeFirst str =
 
         Nothing ->
             str
-
-
-possessive : Player -> String
-possessive player =
-    case player of
-        ComputerPlayer ->
-            playerLabel player ++ "'s"
-
-        HumanPlayer ->
-            playerLabel player ++ "r"
