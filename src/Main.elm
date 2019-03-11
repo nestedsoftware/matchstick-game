@@ -25,37 +25,20 @@ import Task
 -- Business Logic
 
 
-multipleAndRemainder : Int -> ( Int, Int, Int )
-multipleAndRemainder count =
-    let
-        multiple =
-            (count - 1) // 4
-
-        remainder =
-            remainderBy 4 (count - 1)
-    in
-    ( count, multiple, remainder )
-
-
-targetCount : Int -> Int
-targetCount multiple =
-    multiple * 4 + 1
-
-
 matchsticksToTake : Int -> ( Int, Int )
 matchsticksToTake count =
     let
-        ( _, multiple, remainder ) =
-            multipleAndRemainder count
+        remainder =
+            remainderBy 4 (count - 1)
 
-        toTake =
+        take =
             if remainder == 0 then
-                ( count, 1 )
+                1
 
             else
-                ( count, count - targetCount multiple )
+                remainder
     in
-    toTake
+    ( count, take )
 
 
 
